@@ -11,7 +11,7 @@ namespace Spectre.Console
     /// Represents a single list prompt.
     /// </summary>
     /// <typeparam name="T">The prompt result type.</typeparam>
-    public sealed class SelectionPrompt<T> : IPrompt<T>, IListPromptStrategy<T>
+    public sealed class TextSelectionPrompt<T> : IPrompt<T>, IListPromptStrategy<T>
         where T : notnull
     {
         private readonly ListPromptTree<T> _tree;
@@ -57,7 +57,7 @@ namespace Spectre.Console
         /// <summary>
         /// Initializes a new instance of the <see cref="SelectionPrompt{T}"/> class.
         /// </summary>
-        public SelectionPrompt()
+        public TextSelectionPrompt()
         {
             _tree = new ListPromptTree<T>(EqualityComparer<T>.Default);
         }
@@ -145,6 +145,11 @@ namespace Spectre.Console
             if (Title != null)
             {
                 list.Add(new Markup(Title));
+            }
+
+            if (listPromptState.CurrentInput != null)
+            {
+                list.Add(new Text(listPromptState.CurrentInput));
             }
 
             var grid = new Grid();

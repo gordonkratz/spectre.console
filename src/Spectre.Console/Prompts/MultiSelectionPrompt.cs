@@ -224,7 +224,8 @@ namespace Spectre.Console
         }
 
         /// <inheritdoc/>
-        IRenderable IListPromptStrategy<T>.Render(IAnsiConsole console, bool scrollable, int cursorIndex, IEnumerable<(int Index, ListPromptItem<T> Node)> items)
+        IRenderable IListPromptStrategy<T>.Render(IAnsiConsole console, bool scrollable, int cursorIndex,
+            ListPromptState<T> listPromptState, IEnumerable<(int Index, ListPromptItem<T> Node)> items)
         {
             var list = new List<IRenderable>();
             var highlightStyle = HighlightStyle ?? new Style(foreground: Color.Blue);

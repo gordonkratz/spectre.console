@@ -66,7 +66,7 @@ namespace Spectre.Console
                         break;
                     }
 
-                    if (state.Update(key.Key) || result == ListPromptInputResult.Refresh)
+                    if (state.Update(key) || result == ListPromptInputResult.Refresh)
                     {
                         hook.Refresh();
                     }
@@ -113,6 +113,7 @@ namespace Spectre.Console
             return _strategy.Render(
                 _console,
                 scrollable, cursorIndex,
+                state,
                 state.Items.Skip(skip).Take(take)
                     .Select((node, index) => (index, node)));
         }
