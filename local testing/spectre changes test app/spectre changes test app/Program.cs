@@ -7,7 +7,11 @@ namespace spectre_changes_test_app
     {
         static void Main(string[] args)
         {
-            AnsiConsole.Prompt(new TextSelectionPrompt<string>().Title("Test input").AddChoices("one", "two", "dog", "apple"));
+            while (true)
+            {
+                var input = AnsiConsole.Prompt(new TextSelectionPrompt<string>().Title("Test input").AddChoices("one", "two", "dog", "apple"));
+                AnsiConsole.WriteLine($"Selected {input}");
+            }
         }
     }
 }

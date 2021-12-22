@@ -1,4 +1,5 @@
 using System;
+using System.Linq;
 using System.Collections.Generic;
 using System.ComponentModel;
 using System.Threading;
@@ -87,6 +88,24 @@ namespace Spectre.Console
             var prompt = new ListPrompt<T>(console, this);
             var result = await prompt.Show(_tree, cancellationToken, PageSize).ConfigureAwait(false);
 
+            if (result.CurrentInput != null)
+            {
+                var possibilities = _tree.Traverse().Where(i => Convert(i.Data).Contains(result.CurrentInput, StringComparison.OrdinalIgnoreCase)).ToArray();
+                if (possibilities.Length == 1)
+                {
+                    return possibilities[0].Data;
+                }
+                if(possibilities.Length > 1)
+                {
+                    var tree = new ListPromptTree<T>(EqualityComparer<T>.Default);
+                    foreach(var p in possibilities)
+                    {
+                        tree.Add(p);
+                    }
+                    result = await prompt.Show(tree, cancellationToken, PageSize).ConfigureAwait(false);
+                }
+            }
+
             // Return the selected item
             return result.Items[result.Index].Data;
         }
@@ -94,7 +113,7 @@ namespace Spectre.Console
         /// <inheritdoc/>
         ListPromptInputResult IListPromptStrategy<T>.HandleInput(ConsoleKeyInfo key, ListPromptState<T> state)
         {
-            if (key.Key == ConsoleKey.Enter || key.Key == ConsoleKey.Spacebar)
+            if (key.Key == ConsoleKey.Enter)
             {
                 // Selecting a non leaf in "leaf mode" is not allowed
                 if (state.Current.IsGroup && Mode == SelectionMode.Leaf)
@@ -103,6 +122,14 @@ namespace Spectre.Console
                 }
 
                 return ListPromptInputResult.Submit;
+            }
+
+
+
+            if (key.KeyChar != '\u0000')
+            {
+                state.CurrentInput += key.KeyChar;
+                return ListPromptInputResult.Refresh;
             }
 
             return ListPromptInputResult.None;
@@ -170,7 +197,7 @@ namespace Spectre.Console
 
                 var indent = new string(' ', item.Node.Depth * 2);
 
-                var text = (Converter ?? TypeConverterHelper.ConvertToString)?.Invoke(item.Node.Data) ?? item.Node.Data.ToString() ?? "?";
+                var text = Convert(item.Node.Data);
                 if (current)
                 {
                     text = text.RemoveMarkup().EscapeMarkup();
@@ -189,6 +216,11 @@ namespace Spectre.Console
             }
 
             return new Rows(list);
+        }
+
+        private string Convert(T data)
+        {
+            return (Converter ?? TypeConverterHelper.ConvertToString)?.Invoke(data) ?? data.ToString() ?? "?";
         }
     }
 }

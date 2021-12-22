@@ -10,7 +10,7 @@ namespace Spectre.Console
         public int ItemCount => Items.Count;
         public int PageSize { get; }
         public IReadOnlyList<ListPromptItem<T>> Items { get; }
-        public string CurrentInput { get; private set; }
+        public string CurrentInput { get; set; }
 
         public ListPromptItem<T> Current => Items[Index];
 
@@ -38,12 +38,6 @@ namespace Spectre.Console
             if (index != Index)
             {
                 Index = index;
-                return true;
-            }
-
-            if(key.KeyChar != '\u0000')
-            {
-                CurrentInput += key.KeyChar;
                 return true;
             }
 
